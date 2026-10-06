@@ -373,7 +373,10 @@ time, and the amyloid β42/40 ratio. Because the biomarker data are in longforma
 ##### Export the combined dataset
 
 ```{r}
-write_csv(mci_combine_df, "data/MCI_combine.csv")
+write_csv(
+  mci_combine_df, 
+  "data/MCI_combine.csv"
+  )
 ```
 
 
