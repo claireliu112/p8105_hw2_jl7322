@@ -1,0 +1,11 @@
+---
+title: "p8105_hw2_jl7322"
+author: "Claire Liu"
+date: "2026-10-06"
+output: github_document
+---
+
+```{r setup, message=FALSE, warning=FALSE}
+library(tidyverse)
+```
+
