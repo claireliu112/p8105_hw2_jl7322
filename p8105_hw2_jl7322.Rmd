@@ -9,3 +9,82 @@ output: github_document
 library(tidyverse)
 ```
 
+## Question 1
+
+Read and clean NY transit data
+
+```{r NY_transit_data, message=FALSE, warning=FALSE}
+NYC_transit_df = read_csv(file = "data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") |> 
+  janitor::clean_names() |> 
+  
+  select(
+    line,
+    station_name,
+    station_latitude,
+    station_longitude,
+    route1:route11,
+    entry,
+    vending,
+    entrance_type,
+    ada
+    ) |> 
+  
+  mutate(
+    entry = case_match(
+      entry,
+      "YES" ~ TRUE,
+      "NO" ~ FALSE
+  ))
+
+NYC_transit_df
+```
+
+#### Description：
+
+The cleaned NYC transit dataset contains `r nrow(NYC_transit_df)` rows, and `r ncol(NYC_transit_df)` columns. I cleaned variable names and retained the variables requested (line, station, name, station latitude, station longitude, routes served, entry, vending, entrance type, and ADA compliance). I convert variable `entry` from `YES` and `NO` character values to logical values (True and False). The data are not very tidy because the route information are stored in `route1` to `route11`. It will be better to store them separately as route name and route number.
+
+
+#### How many distinct stations are there?
+
+```{r }
+distinct_station = 
+  NYC_transit_df |> 
+  distinct(line, station_name) |> 
+  nrow()
+```
+
+There are `r distinct_station` distinct subway stations in the dataset.
+
+
+#### How many stations are ADA compliant?
+
+```{r}
+ada_count = 
+  NYC_transit_df |> 
+  filter(ada == TRUE) |> 
+  distinct(line, station_name) |> 
+  nrow()
+```
+
+There are `r ada_count` ADA compliant stations.
+
+
+#### What proportion of station entrances / exits without vending allow entrance?
+
+```{r}
+entry_proportion = 
+  NYC_transit_df |> 
+  filter(vending == "NO") |> 
+  pull(entry) |> 
+  mean()
+
+entry_proportion = round(entry_proportion * 100, digits = 2)
+```
+
+The proportion of station entrances / exits without vending allow entrance is `r entry_proportion`%.
+
+
+
+
+
+
