@@ -96,7 +96,7 @@ The proportion of station entrances / exits without vending allow entrance is `r
 
 ##### Reformat the route variables
 
-```{r}
+```{r Tidy_NYC_transit}
 NYC_transit_tidy = NYC_transit_df |> 
   pivot_longer(
     route1:route11,
@@ -135,7 +135,7 @@ Of the stations that serve the A train, `r ada_A_train_count` are ADA compliant.
 
 ##### Read and clean the MR. Trash Wheel data
 
-```{r mr_trash}
+```{r mr_trash_data}
 mr_trash_df = 
   read_excel(
     "data/202610 Trash Wheel Collection Data.xlsx",
@@ -154,7 +154,7 @@ mr_trash_df =
 
 ##### Read and clean the Professor Trash Wheel data
 
-```{r professor_trash}
+```{r professor_trash_data}
 professor_trash_df = 
   read_excel(
     "data/202610 Trash Wheel Collection Data.xlsx",
@@ -172,7 +172,7 @@ professor_trash_df =
 
 ##### Read and clean the Gwynnda Wheel data
 
-```{r gwynnda}
+```{r gwynnda_data}
 gwynnda_trash_df = 
   read_excel(
     "data/202610 Trash Wheel Collection Data.xlsx",
@@ -199,7 +199,7 @@ trash_wheel_df =
 ```
 
 
-##### Calculate values to answer questions
+##### Calculate values for trash wheel dataset to answer questions
 
 ```{r}
 professor_total_weight = 
@@ -218,6 +218,69 @@ gwynnda_total_cigarette =
 ```
 
 The combined Trash Wheel dataset include `r nrow(trash_wheel_df)` observations and `r ncol(trash_wheel_df)` columns. Key variables include the Trash Wheel name, dumpster number, month, year, weight in tons, volume in cubic yards, and counts of different types of trash such as plastic bottles and cigarette butts. The total weight of trash collected by Professor Trash Wheel is `r professor_total_weight`. The total number of cigarette butts collected by Gwynnda in June of 2022 is `r as.integer(gwynnda_total_cigarette)`.
+
+
+
+
+## Question 3
+
+##### Read and clean the MCI baseline data 
+
+```{r, message=FALSE}
+mci_baseline_df = 
+  read_csv(file = "data/MCI_baseline.csv",
+           skip = 1,
+           na = ".") |> 
+  janitor::clean_names() |> 
+  mutate(
+    sex = case_match(
+      sex,
+      0 ~ "Female",
+      1 ~ "Male"
+    ),
+    apoe4 = case_match(
+      apoe4,
+      0 ~ "non-carrier",
+      1 ~ "carrier"
+    )
+  ) |> 
+  filter(
+    is.na(age_at_onset) | (age_at_onset > current_age)
+  )
+```
+
+##### Calculate values for MCI baseline data to answer question 
+
+```{r}
+mci_count = 
+  mci_baseline_df |> 
+  filter(!is.na(age_at_onset)) |> 
+  nrow()
+
+avg_age = 
+  mci_baseline_df |> 
+  pull(current_age) |> 
+  mean()
+
+women_count = 
+  mci_baseline_df |> 
+  filter(sex == "Female") |> 
+  nrow()
+  
+women_apoe4_count = 
+  mci_baseline_df |> 
+  filter(sex == "Female",
+         apoe4 =="carrier") |> 
+  nrow()
+
+women_proportion = women_apoe4_count / women_count
+```
+
+The cleaned MCI baseline dataset contains `r nrow(mci_baseline_df)` participants. It includes information on age, sex, education, APOE4 carrier status, and age at MCI onset. During data cleaning, I removed participants who
+already had MCI at baseline and converted sex and APOE4 carrier status from numeric codes to categorical variables. 
+
+Among the participants, `r mci_count` developed MCI during follow-up. The average baseline age is `r round(avg_age, digits = 2)`. There are `r women_proportion * 100`% of women in the study are APOE4 carriers.
+
 
 
 
